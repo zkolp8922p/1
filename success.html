@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Успешный вход</title>
+    <style>
+        body {
+            background-color: #f5fff5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: #2e7d32;
+        }
+
+        .success-container {
+            text-align: center;
+            animation: fadeIn 0.8s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 5px solid #2e7d32;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(46, 125, 50, 0.5);
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .checkmark {
+            width: 60px;
+            height: 60px;
+        }
+
+        .checkmark path {
+            stroke: #2e7d32;
+            stroke-width: 6;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+            stroke-dasharray: 50;
+            stroke-dashoffset: 50;
+            animation: draw 0.8s ease forwards;
+        }
+
+        @keyframes draw {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        .message {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #2e7d32;
+        }
+    </style>
+</head>
+<body>
+    <div class="success-container">
+        <div class="circle">
+            <svg class="checkmark" viewBox="0 0 52 52">
+                <path d="M14 27 L22 35 L38 17" />
+            </svg>
+        </div>
+        <div class="message">Успешный вход!</div>
+    </div>
+</body>
+</html>

